@@ -2,11 +2,10 @@
 package core.basesyntax;
 
 import java.util.NoSuchElementException;
-import java.util.Objects;
 
 public class ArrayList<T> implements List<T> {
     private static final int DEFAULT_CAPACITY = 10;
-    private static final int GROWTH_FACTOR = 2;
+    private static final int GROWTH_DIVISOR = 2;
 
     private Object[] arraylist = new Object[DEFAULT_CAPACITY];
     private int size;
@@ -22,11 +21,10 @@ public class ArrayList<T> implements List<T> {
             throw new ArrayListIndexOutOfBoundsException(
                     "Index: " + index + ", Size: " + size);
         }
-
         ensureCapacity();
-
-        System.arraycopy(arraylist, index, arraylist, index + 1,
-                size - index);
+        for (int i = size; i > index; i--) {
+            arraylist[i] = arraylist[i - 1];
+        }
         arraylist[index] = value;
         size++;
     }
@@ -56,13 +54,10 @@ public class ArrayList<T> implements List<T> {
     @SuppressWarnings("unchecked")
     public T remove(int index) {
         checkIndex(index);
-
         T removedElement = (T) arraylist[index];
-        int elementsToMove = size - index - 1;
 
-        if (elementsToMove > 0) {
-            System.arraycopy(arraylist, index + 1, arraylist, index,
-                    elementsToMove);
+        for (int i = index; i < size - 1; i++) {
+            arraylist[i] = arraylist[i + 1];
         }
 
         arraylist[--size] = null;
@@ -72,13 +67,13 @@ public class ArrayList<T> implements List<T> {
     @Override
     public T remove(T element) {
         for (int i = 0; i < size; i++) {
-            if (Objects.equals(arraylist[i], element)) {
+            if ((arraylist[i] == null && element == null)
+                    || (arraylist[i] != null
+                    && arraylist[i].equals(element))) {
                 return remove(i);
             }
         }
-
-        throw new NoSuchElementException(
-                "Element not found: " + element);
+        throw new NoSuchElementException("Element not found: " + element);
     }
 
     @Override
@@ -101,9 +96,13 @@ public class ArrayList<T> implements List<T> {
     private void ensureCapacity() {
         if (size == arraylist.length) {
             int newCapacity = arraylist.length
-                    + arraylist.length / GROWTH_FACTOR;
+                    + arraylist.length / GROWTH_DIVISOR;
             Object[] newArray = new Object[newCapacity];
-            System.arraycopy(arraylist, 0, newArray, 0, size);
+
+            for (int i = 0; i < size; i++) {
+                newArray[i] = arraylist[i];
+            }
+
             arraylist = newArray;
         }
     }
