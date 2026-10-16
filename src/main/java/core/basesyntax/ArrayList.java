@@ -99,9 +99,7 @@ public class ArrayList<T> implements List<T> {
                     + arraylist.length / GROWTH_DIVISOR;
             Object[] newArray = new Object[newCapacity];
 
-            for (int i = 0; i < size; i++) {
-                newArray[i] = arraylist[i];
-            }
+            System.arraycopy(arraylist, 0, newArray, 0, size);
 
             arraylist = newArray;
         }
